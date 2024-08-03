@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>net.microfalx.zenith</groupId>
+    <artifactId>zenith</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>net.microfalx</groupId>
+        <artifactId>pom</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <name>Zenith</name>
+    <description>A better experience for Selenium Grid</description>
+    <url>https://github.com/microfalx/zenith</url>
+
+    <organization>
+        <name>Adrian Tarau</name>
+        <url>https://github.com/adrian-tarau</url>
+    </organization>
+
+    <scm>
+        <connection>scm:git:https://github.com/microfalx/zenith</connection>
+        <developerConnection>scm:git:https://github.com/microfalx/zenith</developerConnection>
+        <url>https://github.com/microfalx/zenith/tree/main</url>
+    </scm>
+
+    <modules>
+        <module>api</module>
+        <module>base</module>
+        <module>hub</module>
+        <module>node</module>       
+    </modules>
+
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/microfalx/zenith/issues</url>
+    </issueManagement>
+
+    <inceptionYear>2024</inceptionYear>
+
+    <properties>
+        <spring.app.profiles>local,dev</spring.app.profiles>
+        <spring.boot.version>3.2.2</spring.boot.version>
+        <bootstrap.version>1.0.0-SNAPSHOT</bootstrap.version>
+        <selenim.version>4.16.1</selenim.version>
+        <commons-email>1.5</commons-email>
+        <mysql.version>8.3.0</mysql.version>
+        <ipaddress.version>5.4.0</ipaddress.version>
+    </properties>
+
+    <developers>
+        <developer>
+            <name>Adrian Tarau</name>
+            <email>adrian@tarau.net</email>
+        </developer>
+        <developer>
+            <name>Alex Tarau</name>
+            <email>alex@tarau.net</email>
+        </developer>
+    </developers>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- Runtime -->
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-bom</artifactId>
+                <version>${selenim.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>net.microfalx.bootstrap</groupId>
+                <artifactId>bootstrap-core</artifactId>
+                <version>${bootstrap.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.microfalx.bootstrap</groupId>
+                <artifactId>bootstrap-jdbc</artifactId>
+                <version>${bootstrap.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.microfalx.bootstrap</groupId>
+                <artifactId>bootstrap-search</artifactId>
+                <version>${bootstrap.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.microfalx.bootstrap</groupId>
+                <artifactId>bootstrap-template</artifactId>
+                <version>${bootstrap.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.microfalx.bootstrap</groupId>
+                <artifactId>bootstrap-security</artifactId>
+                <version>${bootstrap.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.microfalx.bootstrap</groupId>
+                <artifactId>bootstrap-model</artifactId>
+                <version>${bootstrap.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.microfalx.bootstrap</groupId>
+                <artifactId>bootstrap-metrics</artifactId>
+                <version>${bootstrap.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.microfalx.bootstrap</groupId>
+                <artifactId>bootstrap-web</artifactId>
+                <version>${bootstrap.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.microfalx.bootstrap</groupId>
+                <artifactId>bootstrap-deploy</artifactId>
+                <version>${bootstrap.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-email</artifactId>
+                <version>${commons-email}</version>
+            </dependency>
+
+            <!-- Tests -->
+
+            <dependency>
+                <groupId>net.microfalx.bootstrap</groupId>
+                <artifactId>bootstrap-test</artifactId>
+                <version>${bootstrap.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+
+        <!-- Runtime -->
+
+        <dependency>
+            <groupId>net.microfalx.bootstrap</groupId>
+            <artifactId>bootstrap-core</artifactId>
+        </dependency>
+
+        <!-- Tests -->
+
+        <dependency>
+            <groupId>net.microfalx.bootstrap</groupId>
+            <artifactId>bootstrap-test</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                    <profiles>${spring.app.profiles}</profiles>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-milestones</id>
+            <url>https://repo.spring.io/milestone</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+</project>
