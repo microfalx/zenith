@@ -52,6 +52,7 @@
     <modules>
         <module>api</module>
         <module>base</module>
+        <module>client</module>
         <module>hub</module>
         <module>node</module>       
     </modules>
@@ -68,6 +69,7 @@
         <spring.boot.version>3.2.2</spring.boot.version>
         <bootstrap.version>1.0.0-SNAPSHOT</bootstrap.version>
         <selenim.version>4.16.1</selenim.version>
+        <webdrivermanager.version>5.9.2</webdrivermanager.version>
         <commons-email>1.5</commons-email>
         <mysql.version>8.3.0</mysql.version>
         <ipaddress.version>5.4.0</ipaddress.version>
@@ -160,6 +162,36 @@
             </dependency>
 
             <dependency>
+                <groupId>net.microfalx.zenith</groupId>
+                <artifactId>zenith-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.microfalx.zenith</groupId>
+                <artifactId>zenith-base</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.microfalx.zenith</groupId>
+                <artifactId>zenith-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.microfalx.zenith</groupId>
+                <artifactId>zenith-node</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.microfalx.zenith</groupId>
+                <artifactId>zenith-hub</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.mysql</groupId>
                 <artifactId>mysql-connector-j</artifactId>
                 <version>${mysql.version}</version>
@@ -169,6 +201,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-email</artifactId>
                 <version>${commons-email}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.bonigarcia</groupId>
+                <artifactId>webdrivermanager</artifactId>
+                <version>${webdrivermanager.version}</version>
             </dependency>
 
             <!-- Tests -->

@@ -8,6 +8,7 @@ import net.microfalx.zenith.api.common.Server;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.net.URI;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 
@@ -17,6 +18,8 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 @Getter
 @ToString
 public class Hub extends NamedIdentityAware<String> implements Serializable {
+
+    public static final String HUB_PATH = "/wd/hub";
 
     @Serial
     private static final long serialVersionUID = -7895571769149200427L;
@@ -34,6 +37,24 @@ public class Hub extends NamedIdentityAware<String> implements Serializable {
         this.setId(server.getId());
         this.setName(server.getName());
         this.port = port;
+    }
+
+    /**
+     * Returns the URI to the Selenium HUB.
+     *
+     * @return a non-null instance
+     */
+    public URI getUri() {
+        return URI.create("http://" + Server.get().getHostname() + ":" + port);
+    }
+
+    /**
+     * Returns the URI to the Selenium HUB web service.
+     *
+     * @return a non-null instance
+     */
+    public URI getWsUri() {
+        return URI.create(getUri().toASCIIString() + HUB_PATH);
     }
 
 }
