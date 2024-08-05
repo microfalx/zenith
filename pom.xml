@@ -66,9 +66,10 @@
 
     <properties>
         <spring.app.profiles>local,dev</spring.app.profiles>
-        <spring.boot.version>3.2.2</spring.boot.version>
+        <spring.boot.version>3.3.2</spring.boot.version>
+        <testcontainers.version>1.20.1</testcontainers.version>
         <bootstrap.version>1.0.0-SNAPSHOT</bootstrap.version>
-        <selenim.version>4.16.1</selenim.version>
+        <selenim.version>4.23.0</selenim.version>
         <webdrivermanager.version>5.9.2</webdrivermanager.version>
         <commons-email>1.5</commons-email>
         <mysql.version>8.3.0</mysql.version>
@@ -90,22 +91,6 @@
         <dependencies>
 
             <!-- Runtime -->
-
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring.boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.seleniumhq.selenium</groupId>
-                <artifactId>selenium-bom</artifactId>
-                <version>${selenim.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
 
             <dependency>
                 <groupId>net.microfalx.bootstrap</groupId>
@@ -207,6 +192,24 @@
                 <groupId>io.github.bonigarcia</groupId>
                 <artifactId>webdrivermanager</artifactId>
                 <version>${webdrivermanager.version}</version>
+            </dependency>
+
+            <!-- BOM -->
+
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-bom</artifactId>
+                <version>${selenim.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <!-- Tests -->
