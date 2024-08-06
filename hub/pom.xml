@@ -63,6 +63,16 @@
         </dependency>
 
         <dependency>
+            <groupId>net.microfalx.zenith</groupId>
+            <artifactId>zenith-base</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.microfalx.zenith</groupId>
+            <artifactId>zenith-client</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
         </dependency>
@@ -70,6 +80,12 @@
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-grid</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.microfalx.zenith</groupId>
+            <artifactId>zenith-node</artifactId>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

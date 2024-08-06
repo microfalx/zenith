@@ -53,6 +53,16 @@
         </dependency>
 
         <dependency>
+            <groupId>net.microfalx.zenith</groupId>
+            <artifactId>zenith-base</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.microfalx.zenith</groupId>
+            <artifactId>zenith-client</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
         </dependency>
