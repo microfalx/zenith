@@ -65,15 +65,9 @@
     <inceptionYear>2024</inceptionYear>
 
     <properties>
-        <spring.app.profiles>local,dev</spring.app.profiles>
-        <spring.boot.version>3.3.2</spring.boot.version>
-        <testcontainers.version>1.20.1</testcontainers.version>
         <bootstrap.version>1.0.0-SNAPSHOT</bootstrap.version>
-        <selenim.version>4.23.0</selenim.version>
-        <webdrivermanager.version>5.9.2</webdrivermanager.version>
-        <commons-email>1.5</commons-email>
-        <mysql.version>8.3.0</mysql.version>
-        <ipaddress.version>5.4.0</ipaddress.version>
+
+        <spring.boot.version>3.3.2</spring.boot.version>
     </properties>
 
     <developers>
@@ -90,60 +84,12 @@
     <dependencyManagement>
         <dependencies>
 
-            <!-- Runtime -->
-
             <dependency>
                 <groupId>net.microfalx.bootstrap</groupId>
-                <artifactId>bootstrap-core</artifactId>
+                <artifactId>bootstrap-bom</artifactId>
                 <version>${bootstrap.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>net.microfalx.bootstrap</groupId>
-                <artifactId>bootstrap-jdbc</artifactId>
-                <version>${bootstrap.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>net.microfalx.bootstrap</groupId>
-                <artifactId>bootstrap-search</artifactId>
-                <version>${bootstrap.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>net.microfalx.bootstrap</groupId>
-                <artifactId>bootstrap-template</artifactId>
-                <version>${bootstrap.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>net.microfalx.bootstrap</groupId>
-                <artifactId>bootstrap-security</artifactId>
-                <version>${bootstrap.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>net.microfalx.bootstrap</groupId>
-                <artifactId>bootstrap-model</artifactId>
-                <version>${bootstrap.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>net.microfalx.bootstrap</groupId>
-                <artifactId>bootstrap-metrics</artifactId>
-                <version>${bootstrap.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>net.microfalx.bootstrap</groupId>
-                <artifactId>bootstrap-web</artifactId>
-                <version>${bootstrap.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>net.microfalx.bootstrap</groupId>
-                <artifactId>bootstrap-deploy</artifactId>
-                <version>${bootstrap.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <dependency>
@@ -174,51 +120,6 @@
                 <groupId>net.microfalx.zenith</groupId>
                 <artifactId>zenith-hub</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.mysql</groupId>
-                <artifactId>mysql-connector-j</artifactId>
-                <version>${mysql.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-email</artifactId>
-                <version>${commons-email}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.bonigarcia</groupId>
-                <artifactId>webdrivermanager</artifactId>
-                <version>${webdrivermanager.version}</version>
-            </dependency>
-
-            <!-- BOM -->
-
-            <dependency>
-                <groupId>org.seleniumhq.selenium</groupId>
-                <artifactId>selenium-bom</artifactId>
-                <version>${selenim.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring.boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- Tests -->
-
-            <dependency>
-                <groupId>net.microfalx.bootstrap</groupId>
-                <artifactId>bootstrap-test</artifactId>
-                <version>${bootstrap.version}</version>
-                <scope>test</scope>
             </dependency>
 
         </dependencies>
