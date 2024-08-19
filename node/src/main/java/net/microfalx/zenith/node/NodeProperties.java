@@ -13,9 +13,10 @@ import java.time.Duration;
 @ToString
 public class NodeProperties {
 
-    private int port = 49110;
+    private int port = 5555;
     private int maxSessions = 1;
     private Duration timeout = Duration.ofSeconds(120);
     private Duration browserTimeout = Duration.ofSeconds(120);
-    private int maxThreads = 50;
+    private int maxThreads = 10;
+    private Duration validationInterval = Duration.ofSeconds(30);
 }

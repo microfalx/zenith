@@ -83,6 +83,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.eclipse.jetty.ee10</groupId>
+            <artifactId>jetty-ee10-proxy</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>net.microfalx.zenith</groupId>
             <artifactId>zenith-node</artifactId>
             <scope>provided</scope>

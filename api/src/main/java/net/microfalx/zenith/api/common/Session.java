@@ -7,6 +7,7 @@ import net.microfalx.zenith.api.node.Slot;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,7 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 import static net.microfalx.lang.StringUtils.*;
 
 /**
- * A Selenium session.
+ * A Selenium session executed by a {@link Project}.
  */
 @Getter
 @ToString
@@ -32,8 +33,8 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
     private Reason reason;
     private Browser browser;
     private String key;
-    private long startTime;
-    private long endTime;
+    private LocalDateTime startedAt;
+    private LocalDateTime endedAt;
     private boolean closed;
 
     public Map<String, Object> getCapabilities() {
@@ -56,16 +57,16 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
         return (String) capabilities.get("sessionCategory");
     }
 
-    public LocalDateTime getStartTime() {
-        return TimeUtils.toLocalDateTime(startTime);
+    public LocalDateTime getStartedAt() {
+        return startedAt;
     }
 
-    public LocalDateTime getEndTime() {
-        return endTime <= 0 ? null : TimeUtils.toLocalDateTime(endTime);
+    public LocalDateTime getEndedAt() {
+        return endedAt;
     }
 
-    public long getDuration() {
-        return endTime <= 0 ? Math.max(0, System.currentTimeMillis() - startTime) : Math.max(0, endTime - startTime);
+    public Duration getDuration() {
+        return endedAt != null ? Duration.between(startedAt, endedAt) : Duration.between(startedAt, LocalDateTime.now());
     }
 
     public Browser getBrowser() {
@@ -117,8 +118,8 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
         private Status status;
         private Reason reason;
         private String key;
-        private long startTime;
-        private long endTime;
+        private LocalDateTime startedAt;
+        private LocalDateTime endedAt;
         private boolean closed;
 
         public Builder(String id) {
@@ -136,6 +137,11 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
             return this;
         }
 
+        public Builder capabilities(Map<String, Object> values) {
+            if (values != null) capabilities.putAll(values);
+            return this;
+        }
+
         public Builder status(Status status) {
             requireNonNull(status);
             this.status = status;
@@ -143,13 +149,15 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
         }
 
         public Builder reason(Reason reason) {
+            requireNonNull(reason);
             this.reason = reason;
             return this;
         }
 
-        public Builder time(long startTime, long endTime) {
-            this.startTime = startTime;
-            this.endTime = endTime;
+        public Builder time(LocalDateTime startedAt, LocalDateTime endedAt) {
+            requireNonNull(startedAt);
+            this.startedAt = startedAt;
+            this.endedAt = endedAt;
             return this;
         }
 
@@ -170,8 +178,8 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
             session.status = status;
             session.reason = reason;
             session.closed = closed;
-            session.startTime = startTime;
-            session.endTime = endTime;
+            session.startedAt = startedAt;
+            session.endedAt = endedAt;
             return session;
         }
     }

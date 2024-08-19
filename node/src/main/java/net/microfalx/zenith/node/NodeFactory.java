@@ -3,18 +3,15 @@ package net.microfalx.zenith.node;
 import lombok.Getter;
 import lombok.Setter;
 import net.microfalx.zenith.api.hub.HubException;
+import net.microfalx.zenith.base.grid.Component;
 import net.microfalx.zenith.client.DriverManager;
 import net.microfalx.zenith.client.Options;
-import org.openqa.selenium.grid.config.Config;
-import org.openqa.selenium.grid.config.MapConfig;
 import org.openqa.selenium.grid.node.Node;
-import org.openqa.selenium.grid.node.local.LocalNodeFactory;
+import org.openqa.selenium.grid.node.httpd.NodeServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import static net.microfalx.lang.FormatterUtils.formatDuration;
 
@@ -29,8 +26,8 @@ public class NodeFactory {
 
     private volatile static NodeFactory instance;
 
+    private volatile Component<NodeServer> component;
     private volatile Node node;
-    private volatile org.openqa.selenium.grid.server.Server<?> server;
 
     private NodeProperties properties = new NodeProperties();
     private URI hubUri = Options.DEFAULT_URI;
@@ -81,8 +78,10 @@ public class NodeFactory {
         DriverManager.getInstance();
         LOGGER.info("Create Selenium Node");
         logConfiguration();
-        node = LocalNodeFactory.create(getConfig());
-        LOGGER.info("Selenium Node was started, version " + node.getNodeVersion());
+        component = Component.create(NodeServer.class)
+                .option("selenium-manager", "true");
+        component.start();
+        LOGGER.info("Selenium Node was started");
     }
 
     /**
@@ -90,7 +89,7 @@ public class NodeFactory {
      */
     private void stop() {
         LOGGER.info("Shutdown Selenium Node");
-        if (server != null) server.stop();
+        if (component != null) component.stop();
     }
 
 
@@ -98,23 +97,8 @@ public class NodeFactory {
         LOGGER.info(" - port: " + properties.getPort());
         LOGGER.info(" - timeout: " + formatDuration(properties.getTimeout()));
         LOGGER.info(" - browser timeout: " + formatDuration(properties.getBrowserTimeout()));
+        LOGGER.info(" - maximum threads: " + properties.getMaxThreads());
         LOGGER.info(" - hub uri: " + hubUri);
-    }
-
-    private Config getConfig() {
-        Map<String, Object> config = new HashMap<>();
-        Map<String, Object> nodeConfig = new HashMap<>();
-        nodeConfig.put("hub", hubUri);
-        Map<String, Object> serverConfig = new HashMap<>();
-        Map<String, Object> eventsConfig = new HashMap<>();
-        config.put("events", eventsConfig);
-        eventsConfig.put("publish", "tcp://*:" + (properties.getPort() - 2));
-        eventsConfig.put("subscribe", "tcp://*:" + (properties.getPort() - 1));
-        eventsConfig.put("bind", true);
-        config.put("server", serverConfig);
-        serverConfig.put("port", properties.getPort());
-        serverConfig.put("max-threads", properties.getMaxThreads());
-        return new MapConfig(config);
     }
 
     static class ShutdownThread extends Thread {

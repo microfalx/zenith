@@ -7,16 +7,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import net.microfalx.bootstrap.jdbc.entity.NamedAndTimestampedIdentityAware;
-import net.microfalx.lang.annotation.Description;
-import net.microfalx.lang.annotation.Position;
-import net.microfalx.lang.annotation.Visible;
-import net.microfalx.lang.annotation.Width;
+import net.microfalx.lang.annotation.*;
 import org.hibernate.annotations.NaturalId;
 
 @Entity
 @Table(name = "zenith_project")
 @Getter
 @Setter
+@Name("Projects")
+@ReadOnly
 @ToString
 public class Project extends NamedAndTimestampedIdentityAware<Integer> {
 

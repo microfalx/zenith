@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <navigations xmlns="https://net.microfalx/xsd/navigation-1.0.xsd">
-    <menu id="left">
+    <menu id="primary">
         <item id="running" text="Running" position="20" action="/running" icon="fa-solid fa-gears"/>
         <item id="session" text="Sessions" position="21" action="/session" icon="fa-solid fa-gears"/>
         <item id="node" text="Nodes"  position="22" action="/node" icon="fa-solid fa-circle-nodes"/>

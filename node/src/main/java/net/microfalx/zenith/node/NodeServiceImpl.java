@@ -5,6 +5,7 @@ import net.microfalx.bootstrap.core.async.TaskExecutorFactory;
 import net.microfalx.bootstrap.jdbc.jpa.NaturalIdEntityUpdater;
 import net.microfalx.bootstrap.model.MetadataService;
 import net.microfalx.lang.*;
+import net.microfalx.metrics.Metrics;
 import net.microfalx.resource.Resource;
 import net.microfalx.zenith.api.common.Log;
 import net.microfalx.zenith.api.common.Screenshot;
@@ -12,11 +13,12 @@ import net.microfalx.zenith.api.common.Server;
 import net.microfalx.zenith.api.common.Session;
 import net.microfalx.zenith.api.hub.Hub;
 import net.microfalx.zenith.api.node.Node;
+import net.microfalx.zenith.api.node.NodeException;
 import net.microfalx.zenith.api.node.NodeService;
 import net.microfalx.zenith.api.node.Runner;
+import net.microfalx.zenith.base.ZenithUtils;
 import net.microfalx.zenith.base.jpa.HubRepository;
 import net.microfalx.zenith.base.jpa.NodeRepository;
-import org.joor.Reflect;
 import org.openqa.selenium.NoSuchSessionException;
 import org.openqa.selenium.grid.node.ActiveSession;
 import org.openqa.selenium.grid.node.local.SessionSlot;
@@ -34,6 +36,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -44,6 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.System.currentTimeMillis;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
+import static net.microfalx.lang.TimeUtils.TEN_SECONDS;
 import static net.microfalx.lang.TimeUtils.millisSince;
 
 /**
@@ -56,6 +60,8 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
 
     private static final long CLOSED_SESSIONS_RETENTION = TimeUtils.FIFTEEN_MINUTE;
     private static final DateTimeFormatter DAY_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    private static Metrics NODE_METRICS = ZenithUtils.ZENITH_METRICS.withGroup("Node");
 
     @Autowired
     private MetadataService metadataService;
@@ -73,6 +79,8 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
     private NodeProperties properties = new NodeProperties();
 
     private volatile Node node;
+    private volatile boolean ready;
+    private volatile long lastReadyUpdate = TimeUtils.ONE_DAY;
     private volatile Hub hub;
     private volatile NodeFactory factory;
     private RunnerManager runnerManager;
@@ -85,7 +93,25 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
 
     @Override
     public Node getNode() {
+        if (node == null) {
+            throw new NodeException("A node is not available");
+        }
         return node;
+    }
+
+    @Override
+    public URI getUri() {
+        return getNode().getUri();
+    }
+
+    @Override
+    public boolean isReady() {
+        if (millisSince(lastReadyUpdate) > TEN_SECONDS) {
+            lastReadyUpdate = currentTimeMillis();
+            this.ready = new NodeStatus(node).execute();
+        }
+        NODE_METRICS.count(ready ? "Ready" : "Not Ready");
+        return ready;
     }
 
     @Override
@@ -137,13 +163,12 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
         runnerManager.start();
 
         setupNode();
+        registerTasks();
     }
 
     private void initializeNode() {
-        node = Node.create(Server.get(), -1);
-        NaturalIdEntityUpdater<net.microfalx.zenith.base.jpa.Node, Integer> updater = new NaturalIdEntityUpdater<>(metadataService, nodeRepository);
-        /*updater.findByNaturalIdOrCreate()
-        NodeModel.lookupAndUpdate(node);*/
+        node = Node.create(Server.get(), properties.getPort());
+        updateNodeInDatabase();
     }
 
     private void initializeExecutor() {
@@ -155,7 +180,10 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
 
     private void setupNode() {
         NodeUtilities.setupJavaLogger();
-        //LoggingManager.configureLogging(false);
+    }
+
+    private void registerTasks() {
+        taskScheduler.scheduleAtFixedRate(new NodeHealthCheck(this), properties.getValidationInterval());
     }
 
     private synchronized void registerWithHub() {
@@ -169,6 +197,7 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
             LOGGER.info("Change Hub connectivity, host " + hub.getServer().getHostname() + ", port " + hub.getPort());
             factory = NodeFactory.getInstance();
             factory.setHubUri(hub.getWsUri());
+            factory.startup();
             LOGGER.info("Selenium Node created");
             registerSeleniumListener();
         }
@@ -182,9 +211,9 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
     }
 
     private void registerSeleniumListener() {
-        org.openqa.selenium.grid.node.Node node = factory.getNode();
+        /*org.openqa.selenium.grid.node.Node node = factory.getNode();
         this.nodeSessions = Reflect.on(node).get("currentSessions");
-        taskScheduler.scheduleAtFixedRate(new DiscoverSessionWorker(), Duration.ofSeconds(1));
+        taskScheduler.scheduleAtFixedRate(new DiscoverSessionWorker(), Duration.ofSeconds(1));*/
     }
 
     private void closeSession(SessionHolder session) {
@@ -193,7 +222,7 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
     }
 
     private Hub getHub() {
-        if (hub != null && TimeUtils.millisSince(lastHubRefresh) > TimeUtils.ONE_MINUTE) return hub;
+        if (hub != null && millisSince(lastHubRefresh) > TimeUtils.ONE_MINUTE) return hub;
         Iterator<net.microfalx.zenith.base.jpa.Hub> hubIterator = hubRepository.findAll().iterator();
         if (!hubIterator.hasNext()) {
             this.hub = null;
@@ -203,6 +232,18 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
         }
         lastHubRefresh = currentTimeMillis();
         return hub;
+    }
+
+    private void updateNodeInDatabase() {
+        NaturalIdEntityUpdater<net.microfalx.zenith.base.jpa.Node, Integer> updater = new NaturalIdEntityUpdater<>(metadataService, nodeRepository);
+        net.microfalx.zenith.base.jpa.Node nodeJpa = new net.microfalx.zenith.base.jpa.Node();
+        nodeJpa.setNaturalId(node.getId());
+        nodeJpa.setName(node.getName());
+        nodeJpa.setHostname(node.getServer().getHostname());
+        nodeJpa.setPort(node.getPort());
+        nodeJpa.setActive(true);
+        nodeJpa.setPingedAt(LocalDateTime.now());
+        updater.findByNaturalIdAndUpdate(nodeJpa);
     }
 
     private class RegisterWorker implements Runnable {
@@ -252,6 +293,7 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
         @Override
         public void run() {
             removeOldSessions();
+            updateNodeInDatabase();
         }
     }
 
@@ -377,7 +419,7 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
 
         Screenshot getScreenshot() {
             touch();
-            if (lastScreenshot == null || TimeUtils.millisSince(lastScreenshotUpdated) > NodeUtilities.INTERVAL_BETWEEN_SCREENSHOTS && !closed) {
+            if (lastScreenshot == null || millisSince(lastScreenshotUpdated) > NodeUtilities.INTERVAL_BETWEEN_SCREENSHOTS && !closed) {
                 takeScreenshot();
             }
             byte[] data = new byte[0];

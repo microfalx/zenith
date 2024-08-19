@@ -24,11 +24,25 @@ public interface HubService {
     Hub getHub();
 
     /**
-     * Returns the URI of the Selenium HUB web interface
+     * Returns the URI of the Selenium HUB.
      *
      * @return a non-null instance
      */
     URI getUri();
+
+    /**
+     * Returns the URI of the Selenium HUB web service.
+     *
+     * @return a non-null instance
+     */
+    URI getWsUri();
+
+    /**
+     * Returns whether the HUB is ready.
+     *
+     * @return {@code true} if ready, {@code false} otherwise
+     */
+    boolean isReady();
 
     /**
      * Returns the active sessions running in this node.
@@ -93,20 +107,6 @@ public interface HubService {
      * @return a non-null instance
      */
     Collection<Node> getNodes();
-
-    /**
-     * Registers a new node with the hub.
-     *
-     * @param node the node
-     */
-    void register(Node node);
-
-    /**
-     * Unregisters a node from the hub.
-     *
-     * @param node the node
-     */
-    void unregister(Node node);
 
     /**
      * Refreshes caches (nodes, sessions, etc).

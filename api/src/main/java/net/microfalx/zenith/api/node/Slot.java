@@ -26,6 +26,7 @@ public class Slot extends NamedIdentityAware<String> implements Serializable {
 
     private Map<String, Object> capabilities;
     private Browser browser;
+    private String browserVersion;
 
     private Status status;
     private Session session;
@@ -42,6 +43,13 @@ public class Slot extends NamedIdentityAware<String> implements Serializable {
             browser = EnumUtils.fromName(Browser.class, (String) capabilities.get("browserName"), Browser.OTHER);
         }
         return browser;
+    }
+
+    public String getBrowserVersion() {
+        if (browserVersion == null) {
+            browserVersion = (String) capabilities.get("browserVersion");
+        }
+        return browserVersion;
     }
 
     public Map<String, Object> getCapabilities() {
@@ -83,6 +91,11 @@ public class Slot extends NamedIdentityAware<String> implements Serializable {
         public Builder capability(String name, Object value) {
             requireNonNull(name);
             capabilities.put(name, value);
+            return this;
+        }
+
+        public Builder capabilities(Map<String, Object> values) {
+            if (values != null) capabilities.putAll(values);
             return this;
         }
 

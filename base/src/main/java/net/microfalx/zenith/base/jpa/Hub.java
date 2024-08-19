@@ -8,9 +8,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import net.microfalx.bootstrap.jdbc.entity.NamedAndTimestampedIdentityAware;
-import net.microfalx.lang.annotation.*;
+import net.microfalx.lang.annotation.Description;
+import net.microfalx.lang.annotation.Position;
+import net.microfalx.lang.annotation.Visible;
+import net.microfalx.lang.annotation.Width;
 import org.hibernate.annotations.NaturalId;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -43,8 +45,6 @@ public class Hub extends NamedAndTimestampedIdentityAware<Integer> {
     @Position(502)
     @Visible(modes = {Visible.Mode.BROWSE, Visible.Mode.VIEW})
     @Description("The timestamp when the {name} was last time modified")
-    @LastModifiedDate
-    @ModifiedAt
     private LocalDateTime pingedAt;
 
     public static Hub from(net.microfalx.zenith.api.hub.Hub hub) {

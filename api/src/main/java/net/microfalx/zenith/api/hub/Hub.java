@@ -20,6 +20,7 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 public class Hub extends NamedIdentityAware<String> implements Serializable {
 
     public static final String HUB_PATH = "/wd/hub";
+    public static final String STATUS_PATH = "/status";
 
     @Serial
     private static final long serialVersionUID = -7895571769149200427L;
@@ -46,6 +47,15 @@ public class Hub extends NamedIdentityAware<String> implements Serializable {
      */
     public URI getUri() {
         return URI.create("http://" + Server.get().getHostname() + ":" + port);
+    }
+
+    /**
+     * Returns the URI which can give the status of the HUB.
+     *
+     * @return a non-null instance
+     */
+    public URI getStatusUri() {
+        return URI.create(getUri().toASCIIString() + STATUS_PATH);
     }
 
     /**

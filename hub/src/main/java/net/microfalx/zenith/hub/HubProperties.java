@@ -13,8 +13,9 @@ import java.time.Duration;
 @ToString
 public class HubProperties {
 
-    private int port = 49100;
+    private int port = 4444;
     private Duration timeout = Duration.ofSeconds(120);
     private Duration browserTimeout = Duration.ofSeconds(120);
     private int maxThreads = 50;
+    private Duration validationInterval = Duration.ofSeconds(30);
 }

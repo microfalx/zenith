@@ -8,6 +8,7 @@ import net.microfalx.zenith.api.common.Server;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.net.URI;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 
@@ -17,6 +18,8 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 @Getter
 @ToString
 public class Node extends NamedIdentityAware<String> implements Serializable {
+
+    public static final String STATUS_PATH = "/status";
 
     @Serial
     private static final long serialVersionUID = -8285666211664115971L;
@@ -36,5 +39,31 @@ public class Node extends NamedIdentityAware<String> implements Serializable {
         this.setId(server.getId());
         this.setName(server.getName());
         this.port = port;
+    }
+
+    public Server getServer() {
+        return server;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    /**
+     * Returns the URI to the Selenium HUB.
+     *
+     * @return a non-null instance
+     */
+    public URI getUri() {
+        return URI.create("http://" + Server.get().getHostname() + ":" + port);
+    }
+
+    /**
+     * Returns the URI which can give the status of the HUB.
+     *
+     * @return a non-null instance
+     */
+    public URI getStatusUri() {
+        return URI.create(getUri().toASCIIString() + STATUS_PATH);
     }
 }

@@ -6,10 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import net.microfalx.bootstrap.jdbc.entity.NamedIdentityAware;
-import net.microfalx.lang.annotation.Description;
-import net.microfalx.lang.annotation.Position;
-import net.microfalx.lang.annotation.Visible;
-import net.microfalx.lang.annotation.Width;
+import net.microfalx.lang.annotation.*;
 import net.microfalx.zenith.api.common.Browser;
 import org.hibernate.annotations.NaturalId;
 
@@ -17,6 +14,8 @@ import org.hibernate.annotations.NaturalId;
 @Table(name = "zenith_session")
 @Getter
 @Setter
+@Name("Sessions")
+@ReadOnly
 @ToString
 public class Session extends NamedIdentityAware<Long> {
 

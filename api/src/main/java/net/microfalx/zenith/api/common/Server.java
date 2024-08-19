@@ -61,7 +61,7 @@ public class Server extends NamedIdentityAware<String> implements Serializable {
 
     public static class Builder extends NamedIdentityAware.Builder<String> {
 
-        private String hostname;
+        private final String hostname;
 
         public Builder(String hostname) {
             super(StringUtils.toIdentifier(hostname));

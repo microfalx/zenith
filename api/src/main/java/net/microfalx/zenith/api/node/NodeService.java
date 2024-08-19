@@ -5,6 +5,7 @@ import net.microfalx.zenith.api.common.Screenshot;
 import net.microfalx.zenith.api.common.Session;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.Collection;
 
 /**
@@ -19,6 +20,20 @@ public interface NodeService {
      * @return a non-null instance
      */
     Node getNode();
+
+    /**
+     * Returns the URI of the Selenium Node.
+     *
+     * @return a non-null instance
+     */
+    URI getUri();
+
+    /**
+     * Returns whether the node is ready.
+     *
+     * @return {@code true} if ready, {@code false} otherwise
+     */
+    boolean isReady();
 
     /**
      * Returns the active sessions running in this node.

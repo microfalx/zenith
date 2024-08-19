@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import net.microfalx.bootstrap.dataset.annotation.Formattable;
 import net.microfalx.bootstrap.jdbc.entity.NamedAndTimestampedIdentityAware;
 import net.microfalx.lang.annotation.*;
 import org.hibernate.annotations.NaturalId;
@@ -18,6 +19,8 @@ import java.time.LocalDateTime;
 @Table(name = "zenith_node")
 @Getter
 @Setter
+@Name("Nodes")
+@ReadOnly
 @ToString
 public class Node extends NamedAndTimestampedIdentityAware<Integer> {
 
@@ -35,12 +38,13 @@ public class Node extends NamedAndTimestampedIdentityAware<Integer> {
 
     @Column(name = "port", nullable = false)
     @Position(21)
+    @Formattable(prettyPrint = false)
     @Description("The port where the Selenium node is reachable")
     @Width("80px")
     private int port;
 
     @Column(name = "active", nullable = false)
-    @Position(21)
+    @Position(30)
     @Description("Indicate whether the Selenium node is active")
     @Width("80px")
     private boolean active;

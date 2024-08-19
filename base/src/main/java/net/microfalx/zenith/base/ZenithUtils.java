@@ -1,5 +1,6 @@
 package net.microfalx.zenith.base;
 
+import net.microfalx.metrics.Metrics;
 import net.microfalx.resource.FileResource;
 import net.microfalx.resource.Resource;
 import net.microfalx.resource.SharedResource;
@@ -11,7 +12,10 @@ import java.io.File;
  */
 public class ZenithUtils {
 
-    private static final String DIRECTORY_NAME = ".zenith";
+    public static final String DIRECTORY_NAME = ".zenith";
+    public static Metrics ZENITH_METRICS=Metrics.of("Zenith");
+
+
 
     /**
      * Returns a directory to be used as local storage.

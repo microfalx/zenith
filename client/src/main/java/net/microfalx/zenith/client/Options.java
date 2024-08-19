@@ -112,6 +112,14 @@ public class Options implements Cloneable {
         return copy;
     }
 
+    public Options withHubUri(URI uri) {
+        requireNonNull(uri);
+        Options copy = copy();
+        copy.uri = uri;
+        copy.local = false;
+        return copy;
+    }
+
     private Options copy() {
         try {
             return (Options) clone();
