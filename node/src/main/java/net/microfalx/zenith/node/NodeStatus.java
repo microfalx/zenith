@@ -5,10 +5,18 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import net.microfalx.lang.ExceptionUtils;
+import net.microfalx.lang.UriUtils;
+import net.microfalx.zenith.api.common.Browser;
+import net.microfalx.zenith.base.ZenithUtils;
 import net.microfalx.zenith.base.rest.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -26,6 +34,7 @@ public class NodeStatus {
     private final net.microfalx.zenith.api.node.Node node;
 
     private boolean ready;
+    private net.microfalx.zenith.api.node.Node seleniumNode;
     private Collection<net.microfalx.zenith.api.node.Slot> slots = Collections.emptyList();
     private String message;
 
@@ -36,6 +45,10 @@ public class NodeStatus {
 
     public boolean isReady() {
         return ready;
+    }
+
+    public net.microfalx.zenith.api.node.Node getNode() {
+        return seleniumNode != null ? seleniumNode : node;
     }
 
     public Collection<net.microfalx.zenith.api.node.Slot> getSlots() {
@@ -52,7 +65,8 @@ public class NodeStatus {
             Response response = client.execute();
             if (response != null && response.value != null) {
                 extractStatus(response.value);
-                extractNodes(response.value);
+                extractNode(response.value);
+                extractSlots(response.value);
             } else {
                 message = "No status available";
             }
@@ -63,13 +77,56 @@ public class NodeStatus {
         return ready;
     }
 
+    public static net.microfalx.zenith.api.node.Slot from(net.microfalx.zenith.api.node.Node node, Slot slot) {
+        requireNonNull(node);
+        requireNonNull(slot);
+        net.microfalx.zenith.api.node.Slot.Builder builder = net.microfalx.zenith.api.node.Slot.builder(slot.getId().getId(), node);
+        if (slot.getStereoType() != null) {
+            builder.browser(Browser.from(slot.getStereoType().getBrowserName()));
+        }
+        if (slot.getSession() != null) {
+            builder.session(from(node, slot.getSession()));
+        }
+        return builder.build();
+    }
+
+    public static net.microfalx.zenith.api.common.Session from(net.microfalx.zenith.api.node.Node node, Session session) {
+        requireNonNull(node);
+        requireNonNull(session);
+        net.microfalx.zenith.api.common.Session.Builder builder = net.microfalx.zenith.api.common.Session.builder(session.getId());
+        builder.capabilities(session.getCapabilities())
+                .status(net.microfalx.zenith.api.common.Session.Status.RUNNING);
+        if (session.getStereoType() != null) {
+            builder.browser(Browser.from(session.getStereoType().getBrowserName()));
+        }
+        try {
+            builder.time(ZonedDateTime.parse(session.startedAt, DateTimeFormatter.ISO_DATE_TIME).toLocalDateTime(), null);
+        } catch (Exception e) {
+            builder.time(LocalDateTime.now(), null);
+        }
+        return builder.build();
+    }
+
     private void extractStatus(Status status) {
         this.ready = status.ready;
         this.message = status.message;
     }
 
-    private void extractNodes(Status status) {
+    private void extractNode(Status status) {
+        Node responseNode = status.node;
+        URI uri = UriUtils.parseUri(responseNode.uri);
+        net.microfalx.zenith.api.node.Node.Builder builder = net.microfalx.zenith.api.node.Node.builder(uri);
+        builder.maxSessions(responseNode.getMaxSessions())
+                .state(ZenithUtils.parseState(responseNode.availability))
+                .id(responseNode.getId());
+        this.seleniumNode = builder.build();
+    }
 
+    private void extractSlots(Status status) {
+        slots = new ArrayList<>();
+        for (Slot slot : status.node.slots) {
+            slots.add(from(getNode(), slot));
+        }
     }
 
     @Getter
@@ -126,7 +183,8 @@ public class NodeStatus {
         @JsonProperty("lastStarted")
         private String lastStartedAt;
         private Session session;
-
+        @JsonProperty("stereotype")
+        private StereoType stereoType;
     }
 
     @Getter

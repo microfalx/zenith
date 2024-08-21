@@ -67,6 +67,21 @@ public interface HubService {
     Collection<Slot> getSlots();
 
     /**
+     * Returns a slot within a node.
+     *
+     * @param id the slot identifier
+     * @return the node
+     */
+    Slot getSlot(String id);
+
+    /**
+     * Returns all registered nodes.
+     *
+     * @return a non-null instance
+     */
+    Collection<Node> getNodes();
+
+    /**
      * Returns a registered node.
      *
      * @param id the node identifier
@@ -100,13 +115,6 @@ public interface HubService {
      * @return <code>true</code> if the session is running, <code>false</code> otherwise
      */
     boolean isRunning(String id);
-
-    /**
-     * Returns all registered nodes.
-     *
-     * @return a non-null instance
-     */
-    Collection<Node> getNodes();
 
     /**
      * Refreshes caches (nodes, sessions, etc).

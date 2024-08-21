@@ -57,13 +57,7 @@ public class Session extends NamedIdentityAware<String> implements AutoCloseable
     public static final String JAVA_SCRIPT_TAG = "script";
     public static final String SCREEN_SHOT_TAG = "screenshot";
     public static final String LOGS_TAG = "logs";
-    public static final String CAPABILITY = "zenit:options";
     public static final String LOGGING_CAPABILITY = "loggingPrefs";
-    public static final String PROJECT_CAPABILITY = "sessionProject";
-    public static final String NAME_CAPABILITY = "sessionName";
-    public static final String PACKAGE_CAPABILITY = "sessionPackage";
-    public static final String CATEGORY_CAPABILITY = "sessionCategory";
-    public static final String TAGS_CAPABILITY = "sessionTags";
 
     private static final int WIDTH = 1680;
     private static final int HEIGHT = 1050;
@@ -73,7 +67,7 @@ public class Session extends NamedIdentityAware<String> implements AutoCloseable
 
     private final String id = UUID.randomUUID().toString();
     private volatile String name;
-    private volatile String _package;
+    private volatile String namespace;
     private volatile String project;
     private volatile String category;
     private final Set<String> tags = new HashSet<>();
@@ -187,37 +181,41 @@ public class Session extends NamedIdentityAware<String> implements AutoCloseable
         CURRENT.set(this);
     }
 
-    public String getPackage() {
-        return _package;
+    public String getNamespace() {
+        return namespace;
     }
 
-    public void setPackage(String _package) {
-        this._package = _package;
+    public Session setNamespace(String namespace) {
+        this.namespace = namespace;
+        return this;
     }
 
     public String getProject() {
         return project;
     }
 
-    public void setProject(String project) {
+    public Session setProject(String project) {
         this.project = project;
+        return this;
     }
 
     public String getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public Session setCategory(String category) {
         this.category = category;
+        return this;
     }
 
     public Set<String> getTags() {
         return Collections.unmodifiableSet(tags);
     }
 
-    public void addTag(String tag) {
+    public Session addTag(String tag) {
         requireNonNull(tag);
         this.tags.add(tag);
+        return this;
     }
 
     public boolean isDisableScreenshot() {
@@ -709,12 +707,17 @@ public class Session extends NamedIdentityAware<String> implements AutoCloseable
      */
     private void updateCommonCapabilities(MutableCapabilities capabilities) {
         MutableCapabilities customCapabilities = new MutableCapabilities();
-        if (StringUtils.isNotEmpty(name)) customCapabilities.setCapability(NAME_CAPABILITY, name);
-        if (StringUtils.isNotEmpty(_package)) customCapabilities.setCapability(PACKAGE_CAPABILITY, _package);
-        if (StringUtils.isNotEmpty(category)) customCapabilities.setCapability(CATEGORY_CAPABILITY, category);
-        if (StringUtils.isNotEmpty(project)) customCapabilities.setCapability(PROJECT_CAPABILITY, project);
-        if (!tags.isEmpty()) customCapabilities.setCapability(TAGS_CAPABILITY, CollectionUtils.setToString(tags));
-        capabilities.setCapability(CAPABILITY, customCapabilities);
+        if (StringUtils.isNotEmpty(name))
+            customCapabilities.setCapability(net.microfalx.zenith.api.common.Session.NAME_CAPABILITY, name);
+        if (StringUtils.isNotEmpty(namespace))
+            customCapabilities.setCapability(net.microfalx.zenith.api.common.Session.NAMESPACE_CAPABILITY, namespace);
+        if (StringUtils.isNotEmpty(category))
+            customCapabilities.setCapability(net.microfalx.zenith.api.common.Session.CATEGORY_CAPABILITY, category);
+        if (StringUtils.isNotEmpty(project))
+            customCapabilities.setCapability(net.microfalx.zenith.api.common.Session.PROJECT_CAPABILITY, project);
+        if (!tags.isEmpty())
+            customCapabilities.setCapability(net.microfalx.zenith.api.common.Session.TAGS_CAPABILITY, CollectionUtils.setToString(tags));
+        capabilities.setCapability(net.microfalx.zenith.api.common.Session.CAPABILITY, customCapabilities);
     }
 
     /**

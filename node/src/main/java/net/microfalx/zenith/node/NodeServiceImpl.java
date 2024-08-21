@@ -443,7 +443,7 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
 
         Session getSession() {
             touch();
-            Session.Builder builder = new Session.Builder(id);
+            Session.Builder builder = Session.builder(id);
             nodeSession.getCapabilities().asMap().forEach(builder::capability);
             return builder.build();
         }

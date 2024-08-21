@@ -1,8 +1,8 @@
 package net.microfalx.zenith.api.node;
 
-import net.microfalx.lang.EnumUtils;
 import net.microfalx.lang.IdentityAware;
 import net.microfalx.lang.NamedIdentityAware;
+import net.microfalx.lang.StringUtils;
 import net.microfalx.zenith.api.common.Browser;
 import net.microfalx.zenith.api.common.Session;
 
@@ -28,8 +28,12 @@ public class Slot extends NamedIdentityAware<String> implements Serializable {
     private Browser browser;
     private String browserVersion;
 
-    private Status status;
+    private State state;
     private Session session;
+
+    public static Builder builder(String id, Node node) {
+        return new Builder(id, node);
+    }
 
     private Slot(Node node) {
         requireNonNull(node);
@@ -38,9 +42,13 @@ public class Slot extends NamedIdentityAware<String> implements Serializable {
         this.node = node;
     }
 
+    public Node getNode() {
+        return node;
+    }
+
     public Browser getBrowser() {
         if (browser == null) {
-            browser = EnumUtils.fromName(Browser.class, (String) capabilities.get("browserName"), Browser.OTHER);
+            browser = Browser.from((String) capabilities.get("browserName"));
         }
         return browser;
     }
@@ -56,15 +64,24 @@ public class Slot extends NamedIdentityAware<String> implements Serializable {
         return unmodifiableMap(capabilities);
     }
 
+    public State getState() {
+        return state;
+    }
+
+    public Session getSession() {
+        return session;
+    }
+
     public Slot withSession(Session session) {
         Slot copy = copy();
         copy.session = session;
+        copy.state = session != null ? State.USED : State.FREE;
         return copy;
     }
 
-    public Slot withStatus(Status status) {
+    public Slot withState(State state) {
         Slot copy = copy();
-        copy.status = status;
+        copy.state = state;
         return copy;
     }
 
@@ -72,7 +89,7 @@ public class Slot extends NamedIdentityAware<String> implements Serializable {
         return (Slot) super.copy();
     }
 
-    public enum Status {
+    public enum State {
         FREE,
         USED
     }
@@ -80,8 +97,10 @@ public class Slot extends NamedIdentityAware<String> implements Serializable {
     public static class Builder extends NamedIdentityAware.Builder<String> {
 
         private final Node node;
-
         private final Map<String, Object> capabilities = new HashMap<>();
+        private Browser browser = Browser.OTHER;
+        private String browserVersion = StringUtils.NA_STRING;
+        private Session session;
 
         public Builder(String id, Node node) {
             super(id);
@@ -99,6 +118,21 @@ public class Slot extends NamedIdentityAware<String> implements Serializable {
             return this;
         }
 
+        public Builder browser(Browser browser) {
+            this.browser = browser;
+            return this;
+        }
+
+        public Builder browserVersion(String browserVersion) {
+            this.browserVersion = browserVersion;
+            return this;
+        }
+
+        public Builder session(Session session) {
+            this.session = session;
+            return this;
+        }
+
         @Override
         protected IdentityAware<String> create() {
             return new Slot(node);
@@ -107,6 +141,8 @@ public class Slot extends NamedIdentityAware<String> implements Serializable {
         public Slot build() {
             Slot slot = (Slot) super.build();
             slot.capabilities = capabilities;
+            slot.session = session;
+            slot.state = session != null ? State.USED : State.FREE;
             return slot;
         }
     }

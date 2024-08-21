@@ -2,20 +2,25 @@ package net.microfalx.zenith.api.common;
 
 import lombok.Getter;
 import lombok.ToString;
-import net.microfalx.lang.*;
+import net.microfalx.lang.EnumUtils;
+import net.microfalx.lang.IdentityAware;
+import net.microfalx.lang.NamedIdentityAware;
+import net.microfalx.lang.StringUtils;
 import net.microfalx.zenith.api.node.Slot;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import static java.util.Collections.unmodifiableMap;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
-import static net.microfalx.lang.StringUtils.*;
+import static net.microfalx.lang.CollectionUtils.setFromString;
+import static net.microfalx.lang.StringUtils.NA_STRING;
 
 /**
  * A Selenium session executed by a {@link Project}.
@@ -23,6 +28,17 @@ import static net.microfalx.lang.StringUtils.*;
 @Getter
 @ToString
 public class Session extends NamedIdentityAware<String> implements Serializable {
+
+    public static final String CAPABILITY = "zenit:options";
+
+    public static final String LOGGING_CAPABILITY = "loggingPrefs";
+    public static final String PROJECT_CAPABILITY = "sessionProject";
+    public static final String NAME_CAPABILITY = "sessionName";
+    public static final String NAMESPACE_CAPABILITY = "sessionNamespace";
+    public static final String CATEGORY_CAPABILITY = "sessionCategory";
+    public static final String TAGS_CAPABILITY = "sessionTags";
+
+    public static final String DEFAULT_PROJECT = "Default";
 
     @Serial
     private static final long serialVersionUID = -4239989160165245108L;
@@ -32,29 +48,34 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
     private Status status;
     private Reason reason;
     private Browser browser;
+    private String browserVersion;
     private String key;
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
     private boolean closed;
 
-    public Map<String, Object> getCapabilities() {
-        return unmodifiableMap(capabilities);
-    }
-
-    public Set<String> getTags() {
-        return CollectionUtils.setFromString((String) capabilities.get("sessionTags"));
-    }
-
-    public String getPackage() {
-        return (String) capabilities.get("sessionPackage");
+    public static Builder builder(String id) {
+        return new Builder(id);
     }
 
     public String getProject() {
-        return defaultIfEmpty((String) capabilities.get("sessionProject"), EMPTY_STRING);
+        return getZenithOption(PROJECT_CAPABILITY, DEFAULT_PROJECT);
+    }
+
+    public String getNamespace() {
+        return getZenithOption(NAMESPACE_CAPABILITY, NA_STRING);
     }
 
     public String getCategory() {
-        return (String) capabilities.get("sessionCategory");
+        return getZenithOption(CATEGORY_CAPABILITY, NA_STRING);
+    }
+
+    public Set<String> getTags() {
+        return setFromString(getZenithOption(TAGS_CAPABILITY, null));
+    }
+
+    public Map<String, Object> getCapabilities() {
+        return unmodifiableMap(capabilities);
     }
 
     public LocalDateTime getStartedAt() {
@@ -76,6 +97,13 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
         return browser;
     }
 
+    public String getBrowserVersion() {
+        if (browserVersion == null) {
+            browserVersion = StringUtils.defaultIfEmpty((String) capabilities.get("browserVersion"), NA_STRING);
+        }
+        return browserVersion;
+    }
+
     public Session withSlot(Slot slot) {
         Session copy = copy();
         copy.slot = slot;
@@ -84,14 +112,21 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
 
     @Override
     protected String dynamicName() {
-        if (StringUtils.isEmpty(super.getName())) {
-            setName((String) capabilities.get("sessionName"));
-        }
-        return defaultIfEmpty(getName(), NA_STRING);
+        return getZenithOption(NAME_CAPABILITY, getId());
     }
 
     protected Session copy() {
         return (Session) super.copy();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T getZenithOption(String name, T defaultValue) {
+        return (T) getZenithOptions().getOrDefault(name, defaultValue);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> getZenithOptions() {
+        return (Map<String, Object>) capabilities.getOrDefault("zenit:options", Collections.<String, Object>emptyMap());
     }
 
     public enum Status {
@@ -117,12 +152,14 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
         private final Map<String, Object> capabilities = new HashMap<>();
         private Status status;
         private Reason reason;
+        private Browser browser;
+        private String browserVersion;
         private String key;
         private LocalDateTime startedAt;
         private LocalDateTime endedAt;
         private boolean closed;
 
-        public Builder(String id) {
+        Builder(String id) {
             super(id);
         }
 
@@ -139,6 +176,16 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
 
         public Builder capabilities(Map<String, Object> values) {
             if (values != null) capabilities.putAll(values);
+            return this;
+        }
+
+        public Builder browser(Browser browser) {
+            this.browser = browser;
+            return this;
+        }
+
+        public Builder browserVersion(String browserVersion) {
+            this.browserVersion = browserVersion;
             return this;
         }
 
@@ -174,6 +221,8 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
         public Session build() {
             Session session = (Session) super.build();
             session.capabilities = capabilities;
+            session.browser = browser;
+            session.browserVersion = browserVersion;
             session.key = key;
             session.status = status;
             session.reason = reason;

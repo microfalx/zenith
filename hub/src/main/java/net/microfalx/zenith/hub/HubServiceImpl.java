@@ -26,17 +26,20 @@ import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.lang.System.currentTimeMillis;
-import static net.microfalx.lang.TimeUtils.TEN_SECONDS;
-import static net.microfalx.lang.TimeUtils.millisSince;
+import static java.util.Collections.unmodifiableCollection;
+import static net.microfalx.lang.TimeUtils.*;
 
 @Service
 public class HubServiceImpl implements HubService, InitializingBean, ApplicationListener<ApplicationStartedEvent> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HubService.class);
 
+    private static final long REFRESH_READY_INTERVAL = FIVE_SECONDS;
+    private static final long REFRESH_NODES_INTERVAL = ONE_SECONDS;
     static Metrics GRID_METRICS = ZenithUtils.ZENITH_METRICS.withGroup("Grid");
 
     @Autowired
@@ -54,6 +57,8 @@ public class HubServiceImpl implements HubService, InitializingBean, Application
     private Hub hub;
     private volatile boolean ready;
     private volatile long lastReadyUpdate = TimeUtils.ONE_DAY;
+    private volatile long lastNodesUpdate = TimeUtils.ONE_DAY;
+    private volatile Holder holder = new Holder();
 
     @Override
     public Hub getHub() {
@@ -75,9 +80,9 @@ public class HubServiceImpl implements HubService, InitializingBean, Application
 
     @Override
     public boolean isReady() {
-        if (millisSince(lastReadyUpdate) > TEN_SECONDS) {
+        if (millisSince(lastReadyUpdate) > REFRESH_READY_INTERVAL) {
             lastReadyUpdate = currentTimeMillis();
-            this.ready = new HubStatus(hub).execute();
+            this.ready = new HubStatus(hub, true).execute();
         }
         GRID_METRICS.count(ready ? "Ready" : "Not Ready");
         return ready;
@@ -85,22 +90,44 @@ public class HubServiceImpl implements HubService, InitializingBean, Application
 
     @Override
     public Collection<Session> getSessions() {
-        return Collections.emptyList();
+        refreshNodes();
+        return unmodifiableCollection(holder.sessions.values());
     }
 
     @Override
     public Session getSession(String id) {
-        return null;
+        refreshNodes();
+        Session session = holder.sessions.get(id);
+        if (session == null) throw new HubException("A session with identifier '" + id + "' does not exist");
+        return session;
     }
 
     @Override
     public Collection<Slot> getSlots() {
-        return null;
+        refreshNodes();
+        return unmodifiableCollection(holder.slots.values());
+    }
+
+    @Override
+    public Slot getSlot(String id) {
+        refreshNodes();
+        Slot slot = holder.slots.get(id);
+        if (slot == null) throw new HubException("A slot with identifier '" + id + "' does not exist");
+        return slot;
     }
 
     @Override
     public Node getNode(String id) {
-        return null;
+        refreshNodes();
+        Node node = holder.nodes.get(id);
+        if (node == null) throw new HubException("A node with identifier '" + id + "' does not exist");
+        return node;
+    }
+
+    @Override
+    public Collection<Node> getNodes() {
+        refreshNodes();
+        return unmodifiableCollection(holder.nodes.values());
     }
 
     @Override
@@ -118,14 +145,11 @@ public class HubServiceImpl implements HubService, InitializingBean, Application
         return false;
     }
 
-    @Override
-    public Collection<Node> getNodes() {
-        return Collections.emptyList();
-    }
+
 
     @Override
     public void refresh() {
-
+        refreshNodes();
     }
 
     @Override
@@ -154,5 +178,23 @@ public class HubServiceImpl implements HubService, InitializingBean, Application
 
     private void registerTasks() {
         taskScheduler.scheduleAtFixedRate(new HubHealthCheck(this), properties.getValidationInterval());
+    }
+
+    private synchronized void refreshNodes() {
+        if (!holder.nodes.isEmpty() && millisSince(lastNodesUpdate) < REFRESH_NODES_INTERVAL) return;
+        HubStatus status = new HubStatus(hub, false);
+        status.execute();
+        Holder holder = new Holder();
+        status.getNodes().forEach(n -> holder.nodes.put(n.getId(), n));
+        status.getSlots().forEach(s -> holder.slots.put(s.getId(), s));
+        status.getSessions().forEach(s -> holder.sessions.put(s.getId(), s));
+        this.holder = holder;
+        lastNodesUpdate = System.currentTimeMillis();
+    }
+
+    static class Holder {
+        private final Map<String, Node> nodes = new HashMap<>();
+        private final Map<String, Session> sessions = new HashMap<>();
+        private final Map<String, Slot> slots = new HashMap<>();
     }
 }

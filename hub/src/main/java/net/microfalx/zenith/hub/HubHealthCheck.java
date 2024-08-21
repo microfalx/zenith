@@ -7,6 +7,8 @@ import net.microfalx.zenith.client.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 class HubHealthCheck implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HubHealthCheck.class);
@@ -35,10 +37,12 @@ class HubHealthCheck implements Runnable {
     private void createSession() {
         Options options = Options.create().withHubUri(hubService.getWsUri());
         session = Session.create(options);
+        session.setProject("Zenith").setCategory("Health Check").setNamespace("net.microfalx.zenith.hub");
+        session.addTag("zenith").addTag("validation");
     }
 
     private void runRequests() {
-        session.open("https://google.com");
+        session.open(URLS[ThreadLocalRandom.current().nextInt(URLS.length)]);
         session.takeScreenShot();
         ThreadUtils.sleepSeconds(20);
     }
@@ -47,4 +51,8 @@ class HubHealthCheck implements Runnable {
         if (session == null) return;
         session.close();
     }
+
+    private static final String[] URLS = {
+            "https://google.com", "https://x.com", "https://www.facebook.com", "https://www.linkedin.com"
+    };
 }

@@ -9,7 +9,9 @@ import org.springframework.http.MediaType;
 
 import java.io.StringReader;
 import java.net.URI;
+import java.time.Duration;
 
+import static java.time.Duration.ofSeconds;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 
 /**
@@ -23,6 +25,8 @@ public class RestClient<T> {
     private final Class<T> resultType;
 
     private ObjectMapper mapper;
+    private Duration connectionTimeout = ofSeconds(5);
+    private Duration readTimeout = ofSeconds(5);
 
     public static <T> RestClient<T> create(URI uri, Class<T> resultType) {
         return new RestClient<>(uri, resultType);

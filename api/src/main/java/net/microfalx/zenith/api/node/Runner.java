@@ -16,7 +16,7 @@ import java.util.Collections;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 
 /**
- * Identifies a process which runs a test (browser)
+ * Identifies a process which runs a test (browser).
  */
 @Getter
 @ToString

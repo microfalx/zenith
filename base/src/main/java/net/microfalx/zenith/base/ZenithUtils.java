@@ -4,6 +4,7 @@ import net.microfalx.metrics.Metrics;
 import net.microfalx.resource.FileResource;
 import net.microfalx.resource.Resource;
 import net.microfalx.resource.SharedResource;
+import net.microfalx.zenith.api.node.Node;
 
 import java.io.File;
 
@@ -34,5 +35,21 @@ public class ZenithUtils {
      */
     public static Resource getSharedStorage() {
         return SharedResource.directory("zenith");
+    }
+
+    /**
+     * Parses the node state from its string representation (based on Selenium Rest API response).
+     *
+     * @param value the state as string
+     * @return a non-null enum
+     */
+    public static Node.State parseState(String value) {
+        if (value == null) return Node.State.INIT;
+        value = value.toUpperCase();
+        return switch (value) {
+            case "UP" -> Node.State.UP;
+            case "DOWN" -> Node.State.DOWN;
+            default -> Node.State.INIT;
+        };
     }
 }

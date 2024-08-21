@@ -4,17 +4,22 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import net.microfalx.lang.ExceptionUtils;
+import net.microfalx.zenith.api.common.Session;
 import net.microfalx.zenith.api.hub.Hub;
+import net.microfalx.zenith.api.node.Slot;
+import net.microfalx.zenith.base.ZenithUtils;
 import net.microfalx.zenith.base.rest.RestClient;
 import net.microfalx.zenith.node.NodeStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
 import static java.util.Collections.unmodifiableCollection;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
+import static net.microfalx.lang.UriUtils.parseUri;
 
 /**
  * A class which extracts the status of the {@link Hub} over Rest API.
@@ -26,20 +31,32 @@ class HubStatus {
     private final Hub hub;
 
     private boolean ready;
-    private Collection<Node> nodes = Collections.emptyList();
+    private boolean statusOnly;
+    private Collection<net.microfalx.zenith.api.node.Node> nodes = Collections.emptyList();
+    private Collection<Slot> slots = Collections.emptyList();
+    private Collection<Session> sessions = Collections.emptyList();
     private String message;
 
-    HubStatus(Hub hub) {
+    HubStatus(Hub hub, boolean statusOnly) {
         requireNonNull(hub);
         this.hub = hub;
+        this.statusOnly = statusOnly;
     }
 
     public boolean isReady() {
         return ready;
     }
 
-    public Collection<Node> getNodes() {
+    public Collection<net.microfalx.zenith.api.node.Node> getNodes() {
         return unmodifiableCollection(nodes);
+    }
+
+    public Collection<Slot> getSlots() {
+        return unmodifiableCollection(slots);
+    }
+
+    public Collection<Session> getSessions() {
+        return unmodifiableCollection(sessions);
     }
 
     public String getMessage() {
@@ -52,7 +69,7 @@ class HubStatus {
             Response response = client.execute();
             if (response != null && response.value != null) {
                 extractStatus(response.value);
-                extractNodes(response.value);
+                if (!statusOnly) extractNodes(response.value);
             } else {
                 message = "No status available";
             }
@@ -69,7 +86,25 @@ class HubStatus {
     }
 
     private void extractNodes(Status status) {
+        nodes = new ArrayList<>();
+        slots = new ArrayList<>();
+        sessions = new ArrayList<>();
+        for (Node node : status.nodes) {
+            nodes.add(extractNode(node));
+        }
+    }
 
+    private net.microfalx.zenith.api.node.Node extractNode(Node node) {
+        net.microfalx.zenith.api.node.Node.Builder builder = net.microfalx.zenith.api.node.Node.builder(parseUri(node.getUri()));
+        builder.state(ZenithUtils.parseState(node.getAvailability()))
+                .maxSessions(node.getMaxSessions());
+        net.microfalx.zenith.api.node.Node zenithNode = builder.build();
+        for (NodeStatus.Slot slot : node.getSlots()) {
+            Slot zenithSlot = NodeStatus.from(zenithNode, slot);
+            slots.add(zenithSlot);
+            if (zenithSlot.getSession() != null) sessions.add(zenithSlot.getSession());
+        }
+        return zenithNode;
     }
 
     @Getter
