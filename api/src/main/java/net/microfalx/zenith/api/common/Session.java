@@ -29,7 +29,7 @@ import static net.microfalx.lang.StringUtils.NA_STRING;
 @ToString
 public class Session extends NamedIdentityAware<String> implements Serializable {
 
-    public static final String CAPABILITY = "zenit:options";
+    public static final String CAPABILITY = "zenith:options";
 
     public static final String LOGGING_CAPABILITY = "loggingPrefs";
     public static final String PROJECT_CAPABILITY = "sessionProject";
@@ -126,8 +126,9 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> getZenithOptions() {
-        return (Map<String, Object>) capabilities.getOrDefault("zenit:options", Collections.<String, Object>emptyMap());
+        return (Map<String, Object>) capabilities.getOrDefault("zenith:options", Collections.<String, Object>emptyMap());
     }
+
 
     public enum Status {
         CREATED,
@@ -229,7 +230,20 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
             session.closed = closed;
             session.startedAt = startedAt;
             session.endedAt = endedAt;
+            session.setDescription(extractDescription());
             return session;
+        }
+
+        private String extractDescription() {
+            StringBuilder builder = new StringBuilder();
+            appendIfPresent(builder, "pageLoadStrategy", "Page Load Strategy");
+            appendIfPresent(builder, "platformName", "Platform");
+            return builder.toString();
+        }
+
+        private void appendIfPresent(StringBuilder builder, String name, String title) {
+            Object value = capabilities.get(name);
+            if (value != null) StringUtils.append(builder, title + ": " + value);
         }
     }
 }

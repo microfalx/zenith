@@ -4,10 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import net.microfalx.bootstrap.dataset.model.NamedIdentityAware;
-import net.microfalx.lang.annotation.Description;
-import net.microfalx.lang.annotation.Position;
-import net.microfalx.lang.annotation.ReadOnly;
-import net.microfalx.lang.annotation.Width;
+import net.microfalx.lang.annotation.*;
 import net.microfalx.zenith.api.common.Browser;
 import net.microfalx.zenith.api.common.Session;
 
@@ -19,6 +16,7 @@ import static net.microfalx.lang.CollectionUtils.setToString;
 @Getter
 @Setter
 @ToString
+@Name("Sessions")
 @ReadOnly
 public class RunningSession extends NamedIdentityAware<String> {
 

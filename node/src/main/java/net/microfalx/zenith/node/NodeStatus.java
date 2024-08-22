@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -100,7 +101,9 @@ public class NodeStatus {
             builder.browser(Browser.from(session.getStereoType().getBrowserName()));
         }
         try {
-            builder.time(ZonedDateTime.parse(session.startedAt, DateTimeFormatter.ISO_DATE_TIME).toLocalDateTime(), null);
+            ZonedDateTime startTime = ZonedDateTime.parse(session.startedAt, DateTimeFormatter.ISO_DATE_TIME)
+                    .withZoneSameInstant(ZoneId.systemDefault());
+            builder.time(startTime.toLocalDateTime(), null);
         } catch (Exception e) {
             builder.time(LocalDateTime.now(), null);
         }

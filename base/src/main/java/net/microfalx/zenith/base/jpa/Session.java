@@ -14,7 +14,7 @@ import org.hibernate.annotations.NaturalId;
 @Table(name = "zenith_session")
 @Getter
 @Setter
-@Name("Sessions")
+@Name("History")
 @ReadOnly
 @ToString
 public class Session extends NamedIdentityAware<Long> {

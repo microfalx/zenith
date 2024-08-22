@@ -7,8 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping(value = "/running")
+@RequestMapping(value = "/session")
 @DataSet(model = RunningSession.class)
-@Help("/running")
+@Help("/session")
 public class RunningSessionController extends DataSetController<RunningSession, String> {
 }
