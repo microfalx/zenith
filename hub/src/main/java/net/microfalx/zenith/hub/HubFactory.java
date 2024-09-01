@@ -3,7 +3,7 @@ package net.microfalx.zenith.hub;
 import net.microfalx.zenith.api.common.Server;
 import net.microfalx.zenith.api.hub.HubException;
 import net.microfalx.zenith.base.grid.Component;
-import org.openqa.selenium.grid.commands.Hub;
+import net.microfalx.zenith.base.grid.Hub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +69,11 @@ public class HubFactory {
         Runtime.getRuntime().addShutdownHook(new ShutdownThread());
     }
 
+    /**
+     * Returns the extended (our stuff) Selenium Hub.
+     *
+     * @return a non-null instance
+     */
     public Hub getHub() {
         if (hub == null) throw new HubException("A Selenium Hub is not started");
         return hub;
@@ -108,9 +113,9 @@ public class HubFactory {
         logConfiguration();
         component = Component.create(Hub.class);
         component.start();
+        hub = component.get();
         LOGGER.info("Selenium Hub was started");
     }
-
 
     /**
      * Shuts down the server and its components.

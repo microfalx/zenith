@@ -14,6 +14,8 @@ import net.microfalx.zenith.api.hub.HubService;
 import net.microfalx.zenith.api.node.Node;
 import net.microfalx.zenith.api.node.Slot;
 import net.microfalx.zenith.base.ZenithUtils;
+import net.microfalx.zenith.base.grid.HubStatus;
+import net.microfalx.zenith.base.grid.SessionManager;
 import net.microfalx.zenith.base.jpa.HubRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +49,9 @@ public class HubServiceImpl implements HubService, InitializingBean, Application
 
     @Autowired
     private HubRepository hubRepository;
+
+    @Autowired
+    private SessionManager sessionManager;
 
     @Autowired
     private HubProperties properties = new HubProperties();
@@ -173,7 +178,12 @@ public class HubServiceImpl implements HubService, InitializingBean, Application
     private void initializeHub() {
         HubFactory factory = HubFactory.getInstance();
         factory.setProperties(properties);
-        factory.start();
+        try {
+            factory.start();
+            factory.getHub().setSessionManager(sessionManager);
+        } catch (Exception e) {
+            LOGGER.error("Selenium Hub failed to start", e);
+        }
     }
 
     private void registerTasks() {

@@ -83,6 +83,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-session-map-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.eclipse.jetty.ee10</groupId>
             <artifactId>jetty-ee10-proxy</artifactId>
         </dependency>

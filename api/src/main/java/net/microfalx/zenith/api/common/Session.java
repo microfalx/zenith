@@ -129,11 +129,11 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
         return (Map<String, Object>) capabilities.getOrDefault("zenith:options", Collections.<String, Object>emptyMap());
     }
 
-
     public enum Status {
         CREATED,
         RUNNING,
         SUCCESSFUL,
+        KILLED,
         FAILED
     }
 
@@ -144,6 +144,7 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
         ORPHAN,
         CLIENT_GONE,
         NODE_FAILED,
+        NODE_REMOVED,
         CREATION_FAILED,
         REGISTRATION
     }

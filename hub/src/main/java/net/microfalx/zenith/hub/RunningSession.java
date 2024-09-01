@@ -26,14 +26,14 @@ public class RunningSession extends NamedIdentityAware<String> {
     private String project;
 
     @Position(21)
-    @Description("The namespace associated with the session")
-    @Width("250px")
-    private String namespace;
-
-    @Position(22)
     @Description("The category associated with the session")
     @Width("10px")
     private String category;
+
+    @Position(22)
+    @Description("The namespace associated with the session")
+    @Width("250px")
+    private String namespace;
 
     @Position(30)
     @Description("The browser running the session")

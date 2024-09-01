@@ -16,8 +16,6 @@ public class ZenithUtils {
     public static final String DIRECTORY_NAME = ".zenith";
     public static Metrics ZENITH_METRICS=Metrics.of("Zenith");
 
-
-
     /**
      * Returns a directory to be used as local storage.
      *

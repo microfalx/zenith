@@ -285,7 +285,7 @@ public class Session extends NamedIdentityAware<String> implements AutoCloseable
 
     public synchronized WebDriver getWebDriver() {
         touch();
-        if (driver == null) executeTask(o -> initializeDriver());
+        if (driver == null) executeTask("Init Driver", o -> initializeDriver());
         return driver;
     }
 
@@ -484,7 +484,7 @@ public class Session extends NamedIdentityAware<String> implements AutoCloseable
             if (StringUtils.isEmpty(name)) name = uri.getHost();
             description = uri.toASCIIString();
             logInfo(logger, "Open '" + uri + "'");
-            getWebDriver().get(uri.toASCIIString());
+            executeTask("Open", (t) -> getWebDriver().get(uri.toASCIIString()));
             if (waitFor) waitUntilPageLoaded();
             if (waitFor) {
                 takeScreenShot("After Open");
@@ -523,7 +523,7 @@ public class Session extends NamedIdentityAware<String> implements AutoCloseable
         if (driver != null && !attached) {
             logInfo(logger, "Close driver");
             try {
-                executeTask(o -> driver.close());
+                executeTask("Close", o -> driver.close());
             } catch (Exception e) {
                 LOGGER.warn("Failed to close driver", e);
             }
@@ -543,13 +543,13 @@ public class Session extends NamedIdentityAware<String> implements AutoCloseable
         if (driver != null && !attached) {
             logInfo(logger, "Close driver");
             try {
-                executeTask(o -> driver.close());
+                executeTask("Close", o -> driver.close());
             } catch (Exception e) {
                 LOGGER.warn("Failed to close driver", e);
             }
             logInfo(logger, "Quit driver");
             try {
-                executeTask(o -> driver.quit());
+                executeTask("Quite", o -> driver.quit());
             } catch (Exception e) {
                 LOGGER.warn("Failed to quit driver", e);
             }

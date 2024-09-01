@@ -1,4 +1,4 @@
-package net.microfalx.zenith.node;
+package net.microfalx.zenith.base.grid;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -39,7 +39,7 @@ public class NodeStatus {
     private Collection<net.microfalx.zenith.api.node.Slot> slots = Collections.emptyList();
     private String message;
 
-    NodeStatus(net.microfalx.zenith.api.node.Node node) {
+    public NodeStatus(net.microfalx.zenith.api.node.Node node) {
         requireNonNull(node);
         this.node = node;
     }

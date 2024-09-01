@@ -17,6 +17,7 @@ import net.microfalx.zenith.api.node.NodeException;
 import net.microfalx.zenith.api.node.NodeService;
 import net.microfalx.zenith.api.node.Runner;
 import net.microfalx.zenith.base.ZenithUtils;
+import net.microfalx.zenith.base.grid.NodeStatus;
 import net.microfalx.zenith.base.jpa.HubRepository;
 import net.microfalx.zenith.base.jpa.NodeRepository;
 import org.openqa.selenium.NoSuchSessionException;
