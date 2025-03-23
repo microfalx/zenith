@@ -2,6 +2,7 @@ package net.microfalx.zenith.hub;
 
 import net.microfalx.bootstrap.dataset.DataSetFactory;
 import net.microfalx.bootstrap.dataset.MemoryDataSet;
+import net.microfalx.bootstrap.model.Filter;
 import net.microfalx.bootstrap.model.Metadata;
 import net.microfalx.bootstrap.model.PojoField;
 import net.microfalx.lang.annotation.Provider;
@@ -17,7 +18,7 @@ public class RunningSessionDataSet extends MemoryDataSet<RunningSession, PojoFie
     }
 
     @Override
-    protected Iterable<RunningSession> extractModels() {
+    protected Iterable<RunningSession> extractModels(Filter filterable) {
         HubService hubService = getService(HubService.class);
         return hubService.getSessions().stream().map(RunningSession::from).collect(Collectors.toList());
     }

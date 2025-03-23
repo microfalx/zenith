@@ -23,14 +23,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.microfalx.zenith</groupId>
     <artifactId>zenith-client</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
 
     <parent>
         <groupId>net.microfalx.zenith</groupId>
         <artifactId>zenith</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>0.9.0-SNAPSHOT</version>
     </parent>
 
     <name>Zenith :: Client</name>

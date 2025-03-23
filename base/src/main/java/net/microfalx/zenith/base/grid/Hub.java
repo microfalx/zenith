@@ -19,7 +19,6 @@ import org.openqa.selenium.grid.security.SecretOptions;
 import org.openqa.selenium.grid.server.BaseServerOptions;
 import org.openqa.selenium.grid.server.EventBusOptions;
 import org.openqa.selenium.grid.server.NetworkOptions;
-import org.openqa.selenium.grid.sessionqueue.NewSessionQueue;
 import org.openqa.selenium.grid.sessionqueue.config.NewSessionQueueOptions;
 import org.openqa.selenium.grid.sessionqueue.local.LocalNewSessionQueue;
 import org.openqa.selenium.grid.web.CombinedHandler;
@@ -77,12 +76,13 @@ public class Hub extends org.openqa.selenium.grid.commands.Hub {
 
         DistributorOptions distributorOptions = new DistributorOptions(config);
         NewSessionQueueOptions newSessionRequestOptions = new NewSessionQueueOptions(config);
-        NewSessionQueue queue =
+        LocalNewSessionQueue queue =
                 new LocalNewSessionQueue(
                         tracer,
                         distributorOptions.getSlotMatcher(),
                         newSessionRequestOptions.getSessionRequestTimeoutPeriod(),
                         newSessionRequestOptions.getSessionRequestTimeout(),
+                        newSessionRequestOptions.getMaximumResponseDelay(),
                         secret,
                         newSessionRequestOptions.getBatchSize());
         handler.addHandler(queue);
@@ -100,7 +100,8 @@ public class Hub extends org.openqa.selenium.grid.commands.Hub {
                         distributorOptions.shouldRejectUnsupportedCaps(),
                         newSessionRequestOptions.getSessionRequestRetryInterval(),
                         distributorOptions.getNewSessionThreadPoolSize(),
-                        distributorOptions.getSlotMatcher());
+                        distributorOptions.getSlotMatcher(),
+                        distributorOptions.getPurgeNodesInterval());
         handler.addHandler(distributor);
 
         Router router = new Router(tracer, clientFactory, sessions, queue, distributor);
@@ -148,7 +149,16 @@ public class Hub extends org.openqa.selenium.grid.commands.Hub {
         // these checks
         httpHandler = combine(httpHandler, Route.get("/readyz").to(() -> readinessCheck));
 
-        return new Handlers(httpHandler, new ProxyWebsocketsIntoGrid(clientFactory, sessions));
+        return new Handlers(httpHandler, new ProxyWebsocketsIntoGrid(clientFactory, sessions)) {
+
+            @Override
+            public void close() {
+                router.close();
+                distributor.close();
+                queue.close();
+                bus.close();
+            }
+        };
     }
 
     public void setSessionManager(SessionManager sessionManager) {

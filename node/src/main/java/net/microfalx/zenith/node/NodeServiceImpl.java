@@ -1,12 +1,13 @@
 package net.microfalx.zenith.node;
 
 import com.google.common.cache.Cache;
-import net.microfalx.bootstrap.core.async.TaskExecutorFactory;
+import net.microfalx.bootstrap.core.async.ThreadPoolFactory;
 import net.microfalx.bootstrap.jdbc.jpa.NaturalIdEntityUpdater;
 import net.microfalx.bootstrap.model.MetadataService;
 import net.microfalx.lang.*;
 import net.microfalx.metrics.Metrics;
 import net.microfalx.resource.Resource;
+import net.microfalx.threadpool.ThreadPool;
 import net.microfalx.zenith.api.common.Log;
 import net.microfalx.zenith.api.common.Screenshot;
 import net.microfalx.zenith.api.common.Server;
@@ -30,7 +31,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
@@ -88,7 +88,7 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
     private final Map<String, SessionHolder> sessions = new ConcurrentHashMap<>();
     private Cache<SessionId, SessionSlot> nodeSessions;
 
-    private TaskExecutor taskExecutor;
+    private ThreadPool threadPool;
 
     private volatile long lastHubRefresh = TimeUtils.oneHourAgo();
 
@@ -173,7 +173,7 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
     }
 
     private void initializeExecutor() {
-        taskExecutor = TaskExecutorFactory.create("hub").createExecutor();
+        threadPool = ThreadPoolFactory.create("Hub").create();
     }
 
     private void initializeMisc() {
@@ -219,7 +219,7 @@ public class NodeServiceImpl implements NodeService, InitializingBean, Applicati
 
     private void closeSession(SessionHolder session) {
         session.close();
-        taskExecutor.execute(new PersistWorker(session));
+        threadPool.execute(new PersistWorker(session));
     }
 
     private Hub getHub() {
