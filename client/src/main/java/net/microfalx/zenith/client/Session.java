@@ -3,7 +3,6 @@ package net.microfalx.zenith.client;
 import net.microfalx.lang.*;
 import net.microfalx.metrics.Metrics;
 import net.microfalx.resource.Resource;
-import net.microfalx.zenith.base.ZenithUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
@@ -45,7 +44,7 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 /**
  * A wrapper over a Selenium Driver with additional enhancements.
  */
-public class Session extends NamedIdentityAware<String> implements AutoCloseable {
+public final class Session extends NamedIdentityAware<String> implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Session.class);
 
@@ -262,7 +261,7 @@ public class Session extends NamedIdentityAware<String> implements AutoCloseable
 
     public Resource getStorage() {
         if (storage == null) {
-            storage = ZenithUtils.getLocalStorage().resolve("session", Resource.Type.DIRECTORY);
+            storage = net.microfalx.zenith.api.common.Session.getLocalStorage().resolve("session", Resource.Type.DIRECTORY);
         }
         return storage;
     }

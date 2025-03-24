@@ -2,18 +2,17 @@ package net.microfalx.zenith.client;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import io.github.bonigarcia.wdm.config.DriverManagerType;
-import net.microfalx.zenith.api.node.NodeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 
 /**
- * A Selenium Driver manager supported by
+ * A Selenium Driver manager supported by {@link WebDriverManager}.
  */
 public class DriverManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NodeService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DriverManager.class);
 
     private static volatile DriverManager instance;
 

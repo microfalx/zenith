@@ -2,12 +2,13 @@ package net.microfalx.zenith.api.common;
 
 import lombok.Getter;
 import lombok.ToString;
-import net.microfalx.lang.EnumUtils;
-import net.microfalx.lang.IdentityAware;
-import net.microfalx.lang.NamedIdentityAware;
-import net.microfalx.lang.StringUtils;
+import net.microfalx.lang.*;
+import net.microfalx.metrics.Metrics;
+import net.microfalx.resource.Resource;
+import net.microfalx.resource.SharedResource;
 import net.microfalx.zenith.api.node.Slot;
 
+import java.io.File;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Duration;
@@ -40,6 +41,9 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
 
     public static final String DEFAULT_PROJECT = "Default";
 
+    private static final String DIRECTORY_NAME = "zenith";
+    public static Metrics ZENITH_METRICS = Metrics.of("Zenith");
+
     @Serial
     private static final long serialVersionUID = -4239989160165245108L;
 
@@ -53,6 +57,24 @@ public class Session extends NamedIdentityAware<String> implements Serializable 
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
     private boolean closed;
+
+    /**
+     * Returns a directory to be used as local storage.
+     *
+     * @return a non-null instance
+     */
+    public static Resource getLocalStorage() {
+        return Resource.directory(new File(JvmUtils.getCacheDirectory(), DIRECTORY_NAME));
+    }
+
+    /**
+     * Returns a directory to be used as shared storage.
+     *
+     * @return a non-null instance
+     */
+    public static Resource getSharedStorage() {
+        return SharedResource.directory(DIRECTORY_NAME);
+    }
 
     public static Builder builder(String id) {
         return new Builder(id);

@@ -142,7 +142,7 @@ public class Options implements Cloneable {
     }
 
     private StringBuilder addSeparator(StringBuilder builder) {
-        if (builder.length() > 0) builder.append(", ");
+        if (!builder.isEmpty()) builder.append(", ");
         return builder;
     }
 
